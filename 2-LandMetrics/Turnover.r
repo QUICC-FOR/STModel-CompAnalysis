@@ -101,5 +101,6 @@ BTMtoR <- foreach(dir=1:length(dirs),.packages='raster') %dopar% {
 BTMtoR <- mean(stack(BTMtoR))
 
 # Save all object
+save(BtoM,BTMtoR,MtoT,file="~/STModel-CompAnalysis/out/turnover.rdata")
 
 stopCluster(cl)
