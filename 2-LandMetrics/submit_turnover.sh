@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N STM-turnover
-#PBS -l walltime=24:00:00
+#PBS -l walltime=12:00:00
 #PBS -l nodes=4:ppn=1
 #PBS -q qwork@mp2
 #PBS -j oe
