@@ -18,6 +18,7 @@ nCores <- detectCores()
 
 # Open the cluster
 cl <- makeCluster(rep(c(as.character(hostlist$V1)),nCores),type='SOCK')
+
 # We replicated the addresses nCores times.
 registerDoParallel(cl)
 
