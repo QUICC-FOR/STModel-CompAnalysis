@@ -4,7 +4,6 @@
 rm(list=ls())
 
 # load library
-library('raster')
 library('doParallel')
 
 # Archive path
@@ -21,6 +20,7 @@ nCores <- detectCores()
 cl <- makeCluster(rep(c(as.character(hostlist$V1)),nCores),type='SOCK')
 # We replicated the addresses nCores times.
 registerDoParallel(cl)
+
 
 ################################################
 # Some usefull functions
@@ -46,8 +46,8 @@ dirs <- grep("rep_",dirs,value=TRUE)
 # list of files in the folder
 files <- paste0(c('0000',as.character(seq(2000,2095,5))),"_land_rs.robj")
 
-# This one can be parralelized
-MtoT <- foreach(dir=1:length(dirs),.packages='raster') %dopar% {
+# This one can be parralelize
+MtoT <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
   ls_over <- list()
   for (file in 2:length(files)){
   	# for each time step in the folder
@@ -65,7 +65,7 @@ MtoT <- foreach(dir=1:length(dirs),.packages='raster') %dopar% {
 
 MtoT <- mean(stack(MtoT))
 
-BtoM <- foreach(dir=1:length(dirs),.packages='raster') %dopar% {
+BtoM <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
   ls_over <- list()
   for (file in 2:length(files)){
   	# for each time step in the folder
@@ -83,7 +83,7 @@ BtoM <- foreach(dir=1:length(dirs),.packages='raster') %dopar% {
 
 BtoM <- mean(stack(BtoM))
 
-BTMtoR <- foreach(dir=1:length(dirs),.packages='raster') %dopar% {
+BTMtoR <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
   ls_over <- list()
   for (file in 2:length(files)){
   	# for each time step in the folder
