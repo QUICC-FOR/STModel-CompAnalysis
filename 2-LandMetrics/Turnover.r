@@ -6,15 +6,13 @@ rm(list=ls())
 # load library
 library('doParallel')
 
-# Archive path
-arch <- Sys.getenv("ARCHIVE")
 
 # Get node addresses given by Torque and assigned to your task
 nodefile <- Sys.getenv("PBS_NODEFILE")
 hostlist <- read.table(nodefile,header=FALSE) # Node adresses
 
 # Get the number of cores by node
-nCores <- detectCores()
+nCores <- 15
 
 # Open the cluster
 cl <- makeCluster(rep(c(as.character(hostlist$V1)),nCores),type='SOCK')
@@ -41,14 +39,14 @@ stateToId <- function(state){
 
 ################################################
 # list all folders
-dirs <- list.dirs(paste0(arch,"/stm-out/stmodel-local"))
+dirs <- list.dirs("./stm-out/stmodel-local")
 dirs <- grep("rep_",dirs,value=TRUE)
 
 # list of files in the folder
 files <- paste0(c('0000',as.character(seq(2000,2095,5))),"_land_rs.robj")
 
 # This one can be parralelize
-MtoT <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
+MtoT <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
   ls_over <- list()
   for (file in 2:length(files)){
   	# for each time step in the folder
