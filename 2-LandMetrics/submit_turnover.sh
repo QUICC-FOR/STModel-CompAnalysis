@@ -6,7 +6,5 @@
 #PBS -j oe
 
 module load bioinformatics/R/3.2.3
-module load gcc/5.2.0
-module load gdal/1.11.1
 cd $PBS_O_WORKDIR
 Rscript ./Turnover.r
