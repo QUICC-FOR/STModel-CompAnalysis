@@ -39,14 +39,14 @@ stateToId <- function(state){
 
 ################################################
 # list all folders
-dirs <- list.dirs("./stm-out/stmodel-local")
+dirs <- list.dirs("~/research/STModel-CompAnalysis/stmodel-local")
 dirs <- grep("rep_",dirs,value=TRUE)
 
 # list of files in the folder
 files <- paste0(c('0000',as.character(seq(2000,2095,5))),"_land_rs.robj")
 
 # This one can be parralelize
-MtoT <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
+MtoT <- foreach(dir=1:10,.packages=c('raster')) %dopar% {
   ls_over <- list()
   for (file in 2:length(files)){
   	# for each time step in the folder
@@ -64,7 +64,7 @@ MtoT <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
 
 MtoT <- mean(stack(MtoT))
 
-BtoM <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
+BtoM <-foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
   ls_over <- list()
   for (file in 2:length(files)){
   	# for each time step in the folder
@@ -82,7 +82,7 @@ BtoM <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
 
 BtoM <- mean(stack(BtoM))
 
-BTMtoR <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
+BTMtoR <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
   ls_over <- list()
   for (file in 2:length(files)){
   	# for each time step in the folder
@@ -100,6 +100,6 @@ BTMtoR <- foreach(dir=1:length(dirs),.packages=c('sp','raster')) %dopar% {
 BTMtoR <- mean(stack(BTMtoR))
 
 # Save all object
-save(BtoM,BTMtoR,MtoT,file="~/STModel-CompAnalysis/out/turnover.rdata")
+save(BtoM,BTMtoR,MtoT,file="~/research/STModel-CompAnalysis/out/turnover.rdata")
 
 stopCluster(cl)
