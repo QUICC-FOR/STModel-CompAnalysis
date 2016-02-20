@@ -46,7 +46,7 @@ dirs <- grep("rep_",dirs,value=TRUE)
 files <- paste0(c('0000',as.character(seq(2000,2095,5))),"_land_rs.robj")
 
 # This one can be parralelize
-res <- foreach(dir=1:nrow(),.packages=c('raster')) %dopar% {
+res <- foreach(dir=1:nrow(dirs),.packages=c('raster')) %dopar% {
   	load(paste(dirs[dir],files[1],sep="/"))
     rs[rs==0] <- NA
     rst1 <- rs
@@ -58,7 +58,7 @@ res <- foreach(dir=1:nrow(),.packages=c('raster')) %dopar% {
 		BtoM <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('M') &  t0 == stateToId('B') , 1, 0) })
 		BTMtoR <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('R')  &  (t0 == stateToId('T') | t0 == stateToId('B') | t0 == stateToId('M')), 1, 0) })
 
-		folder_out <- paste0('~/research/STModel-CompAnalysis/out/',paste(unlist(strsplit(dirs[dir],'/'))[7:9],collapse="-"))
+		folder_out <- paste0('/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/STModel-CompAnalysis/out/',paste(unlist(strsplit(dirs[dir],'/'))[7:9],collapse="-"))
 		dir.create(folder_out, showWarnings = FALSE, recursive = TRUE)
 
 		save(MtoT,BtoM,BTMtoR,file=paste(out_folder,'overlay_rs.rdata',sep='/'))
