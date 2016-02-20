@@ -39,8 +39,7 @@ stateToId <- function(state){
 
 ################################################
 # list all folders
-dirs <- list.dirs("~/research/STModel-CompAnalysis/stmodel-local")
-dirs <- grep("rep_",dirs,value=TRUE)
+dirs <- list.dirs("~/research/STModel-CompAnalysis/stmodel-local",pattern="_rep")
 
 # list of files in the folder
 files <- paste0(c('0000',as.character(seq(2000,2095,5))),"_land_rs.robj")
@@ -50,7 +49,7 @@ res <- foreach(dir=1:nrow(dirs),.packages=c('raster')) %dopar% {
   	load(paste(dirs[dir],files[1],sep="/"))
     rs[rs==0] <- NA
     rst1 <- rs
-    load(paste(dirs[dir],files[21],sep="/"))
+    load(paste(dirs[dir],files[length(files)],sep="/"))
     rs[rs==0] <- NA
     rst0 <- rs
 
