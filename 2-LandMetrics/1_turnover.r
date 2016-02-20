@@ -45,7 +45,7 @@ dirs <- list.dirs("~/research/STModel-CompAnalysis/stmodel-local",pattern="_rep"
 files <- paste0(c('0000',as.character(seq(2000,2095,5))),"_land_rs.robj")
 
 # This one can be parralelize
-res <- foreach(dir=1:nrow(dirs),.packages=c('raster')) %dopar% {
+res <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
   	load(paste(dirs[dir],files[1],sep="/"))
     rs[rs==0] <- NA
     rst1 <- rs
