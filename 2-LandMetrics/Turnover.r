@@ -12,7 +12,7 @@ nodefile <- Sys.getenv("PBS_NODEFILE")
 hostlist <- read.table(nodefile,header=FALSE) # Node adresses
 
 # Get the number of cores by node
-nCores <- 15
+nCores <- 24
 
 # Open the cluster
 cl <- makeCluster(rep(c(as.character(hostlist$V1)),nCores),type='SOCK')
@@ -46,60 +46,23 @@ dirs <- grep("rep_",dirs,value=TRUE)
 files <- paste0(c('0000',as.character(seq(2000,2095,5))),"_land_rs.robj")
 
 # This one can be parralelize
-MtoT <- foreach(dir=1:10,.packages=c('raster')) %dopar% {
-  ls_over <- list()
-  for (file in 2:length(files)){
-  	# for each time step in the folder
-  	load(paste(dirs[dir],files[file],sep="/"))
+res <- foreach(dir=1:nrow(),.packages=c('raster')) %dopar% {
+  	load(paste(dirs[dir],files[1],sep="/"))
     rs[rs==0] <- NA
     rst1 <- rs
-    load(paste(dirs[dir],files[file-1],sep="/"))
+    load(paste(dirs[dir],files[21],sep="/"))
     rs[rs==0] <- NA
     rst0 <- rs
 
-    ls_over[[file-1]] <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('T') &  t0 == stateToId('M') , 1, 0) })
-  }
-  sum(stack(ls_over))
+    MtoT <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('T') &  t0 == stateToId('M') , 1, 0) })
+		BtoM <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('M') &  t0 == stateToId('B') , 1, 0) })
+		BTMtoR <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('R')  &  (t0 == stateToId('T') | t0 == stateToId('B') | t0 == stateToId('M')), 1, 0) })
+
+		folder_out <- paste0('~/research/STModel-CompAnalysis/out/',paste(unlist(strsplit(dirs[dir],'/'))[7:9],collapse="-"))
+		dir.create(folder_out, showWarnings = FALSE, recursive = TRUE)
+
+		save(MtoT,BtoM,BTMtoR,file=paste(out_folder,'overlay_rs.rdata',sep='/'))
+		return(1)
 }
-
-MtoT <- mean(stack(MtoT))
-
-BtoM <-foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
-  ls_over <- list()
-  for (file in 2:length(files)){
-  	# for each time step in the folder
-  	load(paste(dirs[dir],files[file],sep="/"))
-    rs[rs==0] <- NA
-    rst1 <- rs
-    load(paste(dirs[dir],files[file-1],sep="/"))
-    rs[rs==0] <- NA
-    rst0 <- rs
-
-    ls_over[[file-1]] <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('M') &  t0 == stateToId('B') , 1, 0) })
-  }
-  sum(stack(ls_over))
-}
-
-BtoM <- mean(stack(BtoM))
-
-BTMtoR <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
-  ls_over <- list()
-  for (file in 2:length(files)){
-  	# for each time step in the folder
-  	load(paste(dirs[dir],files[file],sep="/"))
-    rs[rs==0] <- NA
-    rst1 <- rs
-    load(paste(dirs[dir],files[file-1],sep="/"))
-    rs[rs==0] <- NA
-    rst0 <- rs
-
-    ls_over[[file-1]] <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('R')  &  (t0 == stateToId('T') | t0 == stateToId('B') | t0 == stateToId('M')), 1, 0) })
-  }
-  sum(stack(ls_over))
-}
-BTMtoR <- mean(stack(BTMtoR))
-
-# Save all object
-save(BtoM,BTMtoR,MtoT,file="~/research/STModel-CompAnalysis/out/turnover.rdata")
 
 stopCluster(cl)
