@@ -5,6 +5,7 @@ rm(list=ls())
 
 # load library
 library('doParallel')
+source("~/research/STModel-CompAnalysis/fcts/fcts.r")
 
 
 # Get node addresses given by Torque and assigned to your task
@@ -19,22 +20,6 @@ cl <- makeCluster(rep(c(as.character(hostlist$V1)),nCores),type='SOCK')
 
 # We replicated the addresses nCores times.
 registerDoParallel(cl)
-
-
-################################################
-# Some usefull functions
-stateToId <- function(state){
-	# Function stateToId
-	# Purpose: Convert state to id
-	state <- as.character(state)
-	state[state=="B"] <- 1
-	state[state=="T"] <- 2
-	state[state=="M"] <- 3
-	state[state=="R"] <- 4
-	state[is.na(state)] <- 0
-
-	return(as.numeric(state))
-}
 
 
 ################################################
@@ -53,7 +38,7 @@ res <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
     rs[rs==0] <- NA
     rst0 <- rs
 
-    MtoT <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('T') &  t0 == stateToId('M') , 1, 0) })
+      MtoT <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('T') &  t0 == stateToId('M') , 1, 0) })
 		BtoM <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('M') &  t0 == stateToId('B') , 1, 0) })
 		BTMtoR <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('R')  &  (t0 == stateToId('T') | t0 == stateToId('B') | t0 == stateToId('M')), 1, 0) })
 

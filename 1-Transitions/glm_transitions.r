@@ -82,8 +82,8 @@ colnames(contrib) <- formulas$tested
 rownames(contrib) <- states
 contrib <- data.frame(contrib, AIC=c(T_multi_full$AIC, M_multi_full$AIC, R_multi_full$AIC, B_multi_full$AIC), R2=c(T_Rs,M_Rs,R_Rs,B_Rs))
 
-# library("knitr")
-# kable(contrib,format="latex")
+library("knitr")
+kable(contrib,format="latex")
 
 #10. Evaluate probability along gradient
 library(RColorBrewer)
@@ -98,6 +98,7 @@ rg_pp <- range(transitionData$annual_pp)
 
 states <- c("T","M","B","R")
 
+## Figure FOUR PANELS BY STATE
 for (from in 1:length(states)){
 
 # STATE FROM
@@ -129,4 +130,37 @@ mtext(paste("From",state_from),side=3,outer=TRUE,cex=1.2,font=2)
 mtext("Temperature",side=2,outer=TRUE,cex=1)
 mtext("Precipitation",side=1,outer=TRUE,cex=1)
 dev.off()
+}
+
+# Figure INDIVIDUAL PANEL
+
+### Begin function
+fig_prob <- function(state_from,state_to){
+  # predict on scaled data
+  pp <- seq(rg_pp[1], rg_pp[2], length.out = 200)
+  tp <- seq(rg_tp[1], rg_tp[2], length.out = 200)
+  prob = as.data.frame(predict(get(paste0(state_from,'_multi_full')), newdata = data.frame(expand.grid(annual_mean_temp = tp, annual_pp = pp),time=5 ), type = "probs"))
+
+  # unscaled data
+  pp <- pp  * attr(scale_pp,"scaled:scale") + attr(scale_pp,"scaled:center")
+  tp <- tp * attr(scale_tp,"scaled:scale") + attr(scale_tp,"scaled:center")
+
+  image(x=pp, y=tp, z = t(matrix(prob[,which(names(prob)==state_to)], ncol = length(pp), nrow = length(tp))),xlab = "Precipitation (mm)", ylab = "Temperature (°C)", col = pal(100),zlim=c(0,1))
+  contour(x=pp, y=tp, z = t(matrix(prob[,which(names(prob)==state_to)], ncol = length(pp), nrow = length(tp))),cex=0.5,add=TRUE)
+}
+
+# Multinom FIG1
+figs_state <- matrix(c('B','R','R','T','B','M','M','T'),ncol=2,nrow=4,byrow=TRUE)
+for(i in 1:nrow(figs_state)){
+  tiff(paste0("~/Documents/GitHub/STModel-CompAnalysis/",paste0(figs_state[i,],collapse='-'),".tiff"),res=300, width = 5, height = 5.5, units = 'in',bg =   "transparent",type='cairo')
+  fig_prob(figs_state[i,1],figs_state[i,2])
+  dev.off()
+}
+
+# Multinom SI_1
+figs_state <- matrix(c('T','R','R','B','T','M','M','B'),ncol=2,nrow=4,byrow=TRUE)
+for(i in 1:nrow(figs_state)){
+  tiff(paste0("~/Documents/GitHub/STModel-CompAnalysis/",paste0(figs_state[i,],collapse='-'),".tiff"),res=300, width = 5, height = 5.5, units = 'in',bg =   "transparent",type='cairo')
+  fig_prob(figs_state[i,1],figs_state[i,2])
+  dev.off()
 }

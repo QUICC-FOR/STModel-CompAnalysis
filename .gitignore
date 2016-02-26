@@ -1,4 +1,6 @@
 .Rhistory
 *.zip
 out/
+in/
 stmodel-*/
+extra/
