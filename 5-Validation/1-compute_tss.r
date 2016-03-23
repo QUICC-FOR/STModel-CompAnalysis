@@ -4,28 +4,9 @@ rm(list=ls())
 setwd("~/Documents/Github/STModel-CompAnalysis")
 load('./extra/RandomForest_complete.robj')
 load('./extra/transitions_r1.rdata')
-load('./extra/scale_info.robj')
+load('./extra/scale_info_old.robj')
 
 source('./fcts/fcts_resAnalytic.r')
-
-## Function
-# evaluation statistics (revised from Boulangeat et al. 2012 to handle large numbers)
-HK <- function(Pred, Obs)
-{
-	Misc = table(Pred, Obs)
-
-    if (nrow(Misc)!=ncol(Misc)) stop("wrong misclassification table")
-    Misc <- unclass(Misc)
-    k  <- ncol(Misc)
-    Nobs <- apply(Misc, 2, sum)
-    Npred <- apply(Misc, 1, sum)
-    N <- sum(Nobs)
-
-
-   HK <- (sum(diag(Misc))/N - sum(as.numeric(Nobs)*as.numeric(Npred))/N/N ) / ( 1 - sum(as.numeric(Nobs)*as.numeric(Nobs))/N/N )
-
-    return(HK)√ 
-}
 
 #### TSS EQUILIBRIUM
 # Libraries

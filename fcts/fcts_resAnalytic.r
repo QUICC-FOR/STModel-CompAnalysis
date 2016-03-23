@@ -28,17 +28,18 @@ model = function(t,y,params) {
 #################################
 get_eq = function(params) {
 
-	library(rootSolve)
+library(rootSolve)
+library(deSolve)
 
-	# Initial conditions
-	y = c(B = 0.25, T = 0.25, M = 0.25)
+# Initial conditions
+y = c(B = 0.25, T = 0.25, M = 0.25)
 
-	# Get the equilibrium
-	eq = runsteady(y=y, func=model, parms=params,times = c(0, 1000),atol=0.001)[[1]]
+# Get the equilibrium
+eq0 = ode(y=y, func=model, parms=params,times = seq(0,1000,0.1))[[1]]
+eq = stode(y=eq0, func=model, parms=params, positive = TRUE)[[1]]
 
-	return(eq)
+return(eq)
 }
-
 #################################
 # Wrapper to collect parameters for a given set of environmental conditions
 #################################
