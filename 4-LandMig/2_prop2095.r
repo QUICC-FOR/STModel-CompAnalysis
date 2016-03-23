@@ -22,9 +22,11 @@ cl <- makeCluster(rep(c(as.character(hostlist$V1)),nCores),type='SOCK')
 registerDoParallel(cl)
 ########## End Mammouth Section
 
+ext_path <- '/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/'
+#ext_path <- './'
 #2. Load the four (STM-Global, local, SDM, Solved) into Brick (Not the same resolution but should have the same extent)!
 # Create archi folder
-com_files <- list.files("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-global/",recursive=TRUE,pattern="2095_land_rs.robj")
+com_files <- list.files(paste0(ext_path,"stmodel-global/"),recursive=TRUE,pattern="2095_land_rs.robj")
 
 res <- foreach(file=1:length(com_files),.packages=c('raster','reshape2'),.combine='rbind') %dopar% {
     #1. Load the four rasters and add the stm solved analyticaly
@@ -34,27 +36,29 @@ res <- foreach(file=1:length(com_files),.packages=c('raster','reshape2'),.combin
     names(md) <- c("pars","landCI","gcm","rep","year")
     md['year'] <- gsub("[^0-9]", "", md['year'])
     if(md['year']=="0000") md['year'] <- "2000"
+    
 
+    
     # stmodel-global
-    load(paste0("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-global/",com_files[file]))
+    load(paste0(ext_path,"stmodel-global/",com_files[file]))
     stm_global <- rs
 
     # stmodel-local
-    load(paste0("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-local/",com_files[file]))
+    load(paste0(ext_path,"stmodel-local/",com_files[file]))
     stm_local <- rs
 
     # SDM
-    load(paste0("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-sdm/",md['gcm'],"/",md['year'],"_rf_sdm.robj"))
+    load(paste0(ext_path,"stmodel-sdm/",md['gcm'],"/",md['year'],"_rf_sdm.robj"))
     sdm <- rs_class
 
     # stm-1000
-    if(md['year']=="2095" & file.exists(paste0("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-10000/",gsub("_land_rs","_land_eq",com_files[file])))){
-      load(paste0("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-10000/",gsub("_land_rs","_land_eq",com_files[file])))
+    if(md['year']=="2095" & file.exists(paste0("stmodel-10000/",gsub("_land_rs","_land_eq",com_files[file])))){
+      load(paste0(ext_path,"stmodel-10000/",gsub("_land_rs","_land_eq",com_files[file])))
       stm_10000 <- rs
     }
 
     # stm-solved
-    load(paste0("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-solved/",md['pars'],"/",md['gcm'],"/",md['year'],"_land_rs.robj"))
+    load(paste0(ext_path,"stmodel-solved/",md['pars'],"/",md['gcm'],"/",md['year'],"_land_rs.robj"))
     stm_solved <- rs_solved
 
     # Clean ws
