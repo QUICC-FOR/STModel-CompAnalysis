@@ -22,10 +22,10 @@ for(file in 1:length(files)){
 # Get the mean
 MtoT <- rs_MtoT/length(files)
 BtoM <- rs_BtoM/length(files)
-BTMtoR <- rs_BTMtoR/length(files)
+#BTMtoR <- rs_BTMtoR/length(files)
 
 # Create stack
-st_transitions <- stack(MtoT,BtoM,BTMtoR)
+st_transitions <- stack(MtoT,BtoM)
 names(st_transitions) <- c('MtoT','BtoM','BTMtoR')
 st_transitions[st_transitions[]<0] <- 0
 

@@ -23,7 +23,7 @@ registerDoParallel(cl)
 ########## End Mammouth Section
 
 ext_path <- '/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/'
-ext_path <- './'
+#ext_path <- './'
 
 #2. Load the four (STM-Global, local, SDM, Solved) into Brick (Not the same resolution but should have the same extent)!
 # Create archi folder

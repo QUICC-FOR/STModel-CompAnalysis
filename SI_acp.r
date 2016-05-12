@@ -10,57 +10,40 @@ bSpecies = c('183302-PIC-MAR','183295-PIC-GLA','18034-PIC-RUB','183412-LAR-LAR',
   '183319-PIN-BAN','18032-ABI-BAL')
 enVar = c("annual_mean_temp", "tot_annual_pp", "mean_diurnal_range","ph_2cm", "slp")
 
-r = 1
-
 # read the data
 treeDat = read.csv('./extra/treeData.csv')
 plotDat = read.csv('./extra/plotInfoData.csv')
 climDat = read.csv('./extra/climData.csv')
-treeDat = merge(treeDat, plotDat, all.x=TRUE)
-treeDat$type = rep('U', nrow(treeDat))
-treeDat$type[which(treeDat$id_spe %in% tSpecies)] = 'T'
-treeDat$type[which(treeDat$id_spe %in% bSpecies)] = 'B'
 
-# get rid of all plots that NEVER have at least one T or B species
-# this prevents them from being classified as R when they never contain even one
-# species of interest
-trTab = table(treeDat$plot_id, treeDat$type)
-filterNames = as.numeric(rownames(trTab[rowSums(trTab[,1:2]) == 0,]))
-treeDat.filtered = treeDat[!(treeDat$plot_id %in% filterNames),]
+# rm unnecessary columns in climData
+climDat <- climDat[,c('plot_id','year_measured',enVar)]
 
-# reshape the data into plot-year samples by state
-sampleDat = dcast(treeDat.filtered, plot_id + year_measured + lat + lon + id_spe ~ type, fill = 0, 
-		value.var = "basal_area", fun.aggregate = sum)
-sampleDat$sumBA = sampleDat$B + sampleDat$T + sampleDat$U
-sampleDat$state = rep('U', nrow(sampleDat))
-sampleDat$state[sampleDat$B > 0 & sampleDat$T == 0] = 'B'
-sampleDat$state[sampleDat$B == 0 & sampleDat$T > 0] = 'T'
-sampleDat$state[sampleDat$B > 0 & sampleDat$T > 0] = 'M'
-sampleDat$state[sampleDat$sumBA < r] = 'R'
+# merge ba with climate based on plot_id
+treeDat <- merge(treeDat,climDat,by=c('plot_id','year_measured'),all.x=TRUE)
 
-# Drop species row which is not in the list of species studied
-sampleDat <- sampleDat[sampleDat$id_spe %in% c(tSpecies,bSpecies),]
-sampleDat$id_spe <- droplevels(sampleDat$id_spe)
+# apply filter on temperature 
+treeDat <- treeDat[treeDat$annual_mean_temp<10,]
+treeDat$id_spe <- droplevels(treeDat$id_spe)
+treeDat$id <- paste(treeDat$plot_id,treeDat$year_measured,sep='_') 
 
-sampleDat = dcast(sampleDat, plot_id + year_measured + lat + lon ~ id_spe, value.var="sumBA" , fun.aggregate = sum)
+# applied filter on BA
+sum_ba <- aggregate(basal_area ~ id,data=treeDat,FUN=sum)
+qu95 <- quantile(sum_ba$basal_area,probs=c(.95))
+flt_ba <- sum_ba[sum_ba$basal_area<=qu95,'id']
+treeDat <- subset(treeDat, !treeDat$id %in% flt_ba)
 
-stateData = merge(sampleDat, climDat, all = 'T', by=c("plot_id", "year_measured"))
-stateData = stateData[!is.na(stateData$lat), ]
-stateData = stateData[!is.na(stateData$mean_diurnal_range), ]
+# Set descriptors (species)
+treeDat <- treeDat[,c('id','id_spe','basal_area')]
+mat <- dcast(id ~ id_spe, data=treeDat,fill=0,fun.aggregate=sum)
+rownames(mat) <- mat$id
+mat <- mat[,-1]
 
 
-stateData$uq_id <- as.numeric(paste0(stateData$plot_id,stateData$year_measured))
-plot_w_env <- stateData[,c("uq_id",enVar)]
-plot_w_env <- unique(plot_w_env)
-rownames(plot_w_env) <- plot_w_env$uq_id
-plot_w_env <- plot_w_env[,-1]
-plot_w_com <- stateData[,c("uq_id",tSpecies,bSpecies)]
-plot_w_com <- unique(plot_w_com)
-rownames(plot_w_com) <- plot_w_com$uq_id
-plot_w_com <- plot_w_com[,-1]
+library('vegan')
+dist <- vegdist(mat, method="bray")
 
 library("ade4")
-var.pca = dudi.pca(plot_w_env[complete.cases(plot_w_env),], scale=TRUE,scann=FALSE, nf = ncol(plot_w_env))
+var.pca = dudi.pca(mat,scale=TRUE,scannf=TRUE, nf = ncol(mat))
 barplot(var.pca$eig)
 kip <- 100 * var.pca$eig/sum(var.pca$eig)
 inertia.dudi(var.pca, row=F,col=T)
@@ -76,6 +59,19 @@ s.arrow(var.pca$co, clab = .6, xlim = c(-2,2), sub = "axe 1: 43% ; axe 2: 27 %")
 #varCor2 = cor(dat_subset10[, selectedVars])
 #varCor2
 
+pr.pca <- prcomp(mat) 
+
+
+data(wine)
+wine.pca <- prcomp(wine, scale. = TRUE)
+ggbiplot(pr.pca) +
+  scale_color_discrete(name = '') +
+  theme(legend.direction = 'horizontal', legend.position = 'top')
+
+fviz_pca_var(var.pca, col.var="contrib") +
+scale_color_gradient2(low="white", mid="blue", 
+      high="red", midpoint=20) + theme_minimal()
+
 library(devtools)
 install_github("vqv/ggbiplot")
 
@@ -83,7 +79,7 @@ library('ggbiplot')
 data(USArrests)
 data(state)
 m <- princomp(USArrests)
-df <- fortify(m, scale = 1)
+df <- fortify(var.pca, scale = 1)
 
 g <- ggplot(df, aes(x = PC1, y = PC2)) +
   geom_text(aes(label = state.abb[match(rownames(df),state.name)])) +

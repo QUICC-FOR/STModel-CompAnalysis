@@ -35,21 +35,24 @@ dev.off()
 
 ### Compute metrics 
 
-# Rate of T+M
 library(reshape2)
 
+# Compute rate of migration
 sub_metric <- timetrics[,c("state" ,"model","pars","landCI", "gcm","rep","year", "Q95" )]
 sub_metric <- subset(sub_metric,model!="t10000" & (year=='2000' | year=='2095'))
 sub_metric <- aggregate(Q95~model+pars+landCI+gcm+rep+year,data=sub_metric,max)
 sub_metric <- dcast(data=sub_metric,model+pars+landCI+gcm+rep~year,value.var="Q95")
 names(sub_metric)[(ncol(sub_metric)-1):ncol(sub_metric)] <- c('t0','t1')
 sub_metric$delta <- sub_metric$t1 -sub_metric$t0
-
 avg_metric <- aggregate(delta~model,data=sub_metric,mean)
 sd_metric <- aggregate(delta~model,data=sub_metric,sd)
 metric <- merge(avg_metric,sd_metric,by=c('model'))
 names(metric)[2:3] <- c("avg","sd")
 metric[,2:3] <- metric[,2:3]/1000
+
+# Get surface 2015 vs 2095
+surf <- aggregate(surf_tot~model+state+year,data=timetrics,mean)
+surf <- dcast(data=surf,model+year~state,value.var="surf_tot")
 
 
 
