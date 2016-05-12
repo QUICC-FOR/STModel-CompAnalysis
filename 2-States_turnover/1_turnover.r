@@ -43,7 +43,7 @@ res <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
 		folder_out <- paste0('/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/STModel-CompAnalysis/out/',paste(unlist(strsplit(dirs[dir],'/'))[7:9],collapse="-"))
 		dir.create(folder_out, showWarnings = FALSE, recursive = TRUE)
 
-		save(MtoT,BtoM,file=paste(out_folder,'overlay_rs.rdata',sep='/'))
+		save(MtoT,BtoM,file=paste(folder_out,'overlay_rs.rdata',sep='/'))
 		return(0)
 }
 
