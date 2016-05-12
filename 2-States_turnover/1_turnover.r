@@ -24,7 +24,8 @@ registerDoParallel(cl)
 
 ################################################
 # list all folders
-dirs <- list.dirs("~/research/STModel-CompAnalysis/stmodel-local",pattern="_rep")
+dirs <- list.dirs("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-local")
+dirs <- dirs[grep('rep_',dirs)]
 
 # This one can be parralelize
 res <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
