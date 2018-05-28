@@ -5,6 +5,6 @@
 #PBS -q qfbb
 #PBS -j oe
 
-module load bioinformatics/R/3.2.3
+module load bioinformatics/R/3.2.5
 cd $PBS_O_WORKDIR
 Rscript ./1_turnover.r
