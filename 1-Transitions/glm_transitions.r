@@ -6,7 +6,7 @@
 rm(list=ls())
 
 # Load library , data
-load("~/Documents/GitHub/STModel-Data-4S/out_files/transitions_r1.rdata")
+load("~/Documents/Git/stm/STModel-Data-4S/out_files/transitions_r1.rdata")
 library("nnet")
 library("reshape2")
 
@@ -18,6 +18,7 @@ scale_tp<- scale(transitionData$annual_mean_temp)
 transitionData$annual_mean_temp <- as.numeric(scale_tp)
 scale_pp <-  scale(transitionData$tot_annual_pp)
 transitionData$annual_pp <- as.numeric(scale_pp)
+
 
 #2. Add time interval
 transitionData$time <- transitionData$year2 - transitionData$year1
@@ -66,6 +67,7 @@ B_Rs <- 1 - (B_multi_full$deviance / B_multi_null$deviance)
 #8. Compute contributions to the full model
 states <- c("T","M","R","B")
 ls_contrib <-list()
+
 
 for (state in 1:length(states)){
   contrib <- as.numeric()
@@ -145,14 +147,14 @@ fig_prob <- function(state_from,state_to){
   pp <- pp  * attr(scale_pp,"scaled:scale") + attr(scale_pp,"scaled:center")
   tp <- tp * attr(scale_tp,"scaled:scale") + attr(scale_tp,"scaled:center")
 
-  image(x=pp, y=tp, z = t(matrix(prob[,which(names(prob)==state_to)], ncol = length(pp), nrow = length(tp))),xlab = "Precipitation (mm)", ylab = "Temperature (°C)", col = pal(100),zlim=c(0,1))
-  contour(x=pp, y=tp, z = t(matrix(prob[,which(names(prob)==state_to)], ncol = length(pp), nrow = length(tp))),cex=0.5,add=TRUE)
+  image(x=pp, y=tp, z = t(matrix(prob[,which(names(prob)==state_to)], ncol = length(pp), nrow = length(tp))),xlab = NA, ylab = NA, col = pal(100),zlim=c(0,1), cex.axis=1)
+  contour(x=pp, y=tp, z = t(matrix(prob[,which(names(prob)==state_to)], ncol = length(pp), nrow = length(tp))),add=TRUE, labcex=0.8)
 }
 
 # Multinom FIG1
 figs_state <- matrix(c('B','R','R','T','B','M','M','T'),ncol=2,nrow=4,byrow=TRUE)
 for(i in 1:nrow(figs_state)){
-  tiff(paste0("~/Documents/GitHub/STModel-CompAnalysis/",paste0(figs_state[i,],collapse='-'),".tiff"),res=300, width = 5, height = 5.5, units = 'in',bg =   "transparent",type='cairo')
+  tiff(paste0("~/Documents/Git/stm/STModel-CompAnalysis/",paste0(figs_state[i,],collapse='-'),".tiff"),res=300, width = 5, height = 5.5, units = 'in',bg =   "transparent",type='cairo')
   fig_prob(figs_state[i,1],figs_state[i,2])
   dev.off()
 }
@@ -160,7 +162,7 @@ for(i in 1:nrow(figs_state)){
 # Multinom SI_1
 figs_state <- matrix(c('T','R','R','B','T','M','M','B'),ncol=2,nrow=4,byrow=TRUE)
 for(i in 1:nrow(figs_state)){
-  tiff(paste0("~/Documents/GitHub/STModel-CompAnalysis/",paste0(figs_state[i,],collapse='-'),".tiff"),res=300, width = 5, height = 5.5, units = 'in',bg =   "transparent",type='cairo')
+  tiff(paste0("~/Documents/Git/stm/STModel-CompAnalysis/",paste0(figs_state[i,],collapse='-'),".tiff"),res=300, width = 5, height = 5.5, units = 'in',bg =   "transparent",type='cairo')
   fig_prob(figs_state[i,1],figs_state[i,2])
   dev.off()
 }
