@@ -24,7 +24,7 @@ registerDoParallel(cl)
 
 ################################################
 # list all folders
-dirs <- list.dirs("/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/stmodel-local")
+dirs <- list.dirs("/mnt/parallel_scratch_mp2_wipe_on_december_2018/dgravel/sviss/stmodel-local")
 dirs <- dirs[grep('rep_',dirs)]
 
 # This one can be parralelize
@@ -37,13 +37,18 @@ res <- foreach(dir=1:length(dirs),.packages=c('raster')) %dopar% {
     rst1 <- rs
 
     MtoT <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('T') &  t0 == stateToId('M') , 1, 0) })
-		BtoM <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('M') &  t0 == stateToId('B') , 1, 0) })
-		#TMtoR <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('R')  &  (t0 == stateToId('T') | t0 == stateToId('B') | t0 == stateToId('M')), 1, 0) })
+    MtoB <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('B') &  t0 == stateToId('M') , 1, 0) })
 
-		folder_out <- paste0('/mnt/parallel_scratch_mp2_wipe_on_august_2016/dgravel/sviss/STModel-CompAnalysis/out/',paste(unlist(strsplit(dirs[dir],'/'))[7:9],collapse="-"))
+    BtoT <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('T') &  t0 == stateToId('B') , 1, 0) })
+    TtoB <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('B') &  t0 == stateToId('T') , 1, 0) })
+
+		BtoM <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('M') &  t0 == stateToId('B') , 1, 0) })
+    TtoM <- overlay(rst1, rst0, fun = function(t1,t0) { ifelse( t1 == stateToId('M') &  t0 == stateToId('T') , 1, 0) })
+
+		folder_out <- paste0('/mnt/parallel_scratch_mp2_wipe_on_december_2018/dgravel/sviss/turnover/',paste(unlist(strsplit(dirs[dir],'/'))[7:9],collapse="-"))
 		dir.create(folder_out, showWarnings = FALSE, recursive = TRUE)
 
-		save(MtoT,BtoM,file=paste(folder_out,'overlay_rs.rdata',sep='/'))
+		saveRDS(stack(MtoT,MtoB,BtoT,TtoB,BtoM,TtoM),file=paste(folder_out,'overlay_rs.rds',sep='/'))
 		return(0)
 }
 
