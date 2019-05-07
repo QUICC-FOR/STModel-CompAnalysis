@@ -1,0 +1,45 @@
+\documentclass[11pt]{article}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\begin{document}
+
+\begin{table}
+
+\caption[Multinomial regression summary]{Summary of the results of multinomial generalised linear models fit by artificial neural networks.
+Each model estimates the probability of transition from one forest state to another as a function only of climate (i.e., without considering dispersal), considering third-order orthogonal polynomials of mean annual temperature ($T$) and total annual precipitation ($P$).
+Shown are the scaled parameter estimates (with standard errors in parentheses).
+}
+
+\begin{tabular}{llrrrrrrr}
+\toprule
+  &  & Intercept & $T$ & $T^2$ & $T^3$ & $P$ & $P^2$ & $P^3$ \\
+\midrule
+\multicolumn{2}{l}{\textbf{From T to}} \\
+& \multirow{2}{*}{M} & -3.900 &  0.862 & -2.420 &  0.577 & -0.027 & -0.409 & -0.298 \\
+& & (0.504) &  (0.957) &  (0.867) &  (0.460) &  (0.081) &  (0.146) &  (0.103) \\[3pt]
+& \multirow{2}{*}{R} & -5.670 &  1.630 & -2.020 &  0.809 & -0.109 &  0.046 & -0.072 \\
+& & (0.988) &  (1.690) &  (1.540) &  (0.599) &  (0.122) &  (0.194) &  (0.145) \\[3pt]
+\multicolumn{2}{l}{\textbf{From B to}} \\
+& \multirow{2}{*}{M} & -3.250 &  1.590 & -1.210 &  0.607 &  0.014 & -0.252 & -0.002 \\
+& & (0.200) &  (0.446) &  (0.398) &  (0.300) &  (0.071) &  (0.094) &  (0.080) \\[3pt]
+& \multirow{2}{*}{R} & -4.220 & -0.396 &  0.057 &  0.212 & -0.140 &  0.088 &  0.017 \\
+& & (0.194) &  (0.303) &  (0.291) &  (0.241) &  (0.099) &  (0.066) &  (0.067) \\[3pt]
+\multicolumn{2}{l}{\textbf{From M to}} \\
+& \multirow{2}{*}{B} & -3.300 & -1.420 &  1.700 & -0.886 & -0.545 & -0.321 & -0.245 \\
+& & (0.438) &  (0.972) &  (0.838) &  (0.575) &  (0.144) &  (0.226) &  (0.169) \\[3pt]
+& \multirow{2}{*}{T} & -2.720 & -0.676 &  1.300 & -0.353 & -0.451 & -0.030 &  0.031 \\
+& & (0.310) &  (0.616) &  (0.574) &  (0.326) &  (0.069) &  (0.099) &  (0.082) \\[3pt]
+& \multirow{2}{*}{R} & -5.300 &  0.208 & -0.732 &  0.349 & -0.102 & -0.218 & -0.307 \\
+& & (0.884) &  (2.110) &  (1.690) &  (1.300) &  (0.175) &  (0.273) &  (0.244) \\[3pt]
+\multicolumn{2}{l}{\textbf{From R to}} \\
+& \multirow{2}{*}{B} & -0.806 &  0.106 & -1.310 &  0.218 &  0.406 & -0.080 &  0.064 \\
+& & (0.114) &  (0.262) &  (0.232) &  (0.238) &  (0.062) &  (0.052) &  (0.072) \\[3pt]
+& \multirow{2}{*}{T} & -2.870 &  2.780 & -1.500 &  0.366 &  0.097 & -0.386 & -0.095 \\
+& & (0.618) &  (1.060) &  (0.994) &  (0.417) &  (0.144) &  (0.228) &  (0.192) \\[3pt]
+& \multirow{2}{*}{M} & -2.720 &  1.390 & -1.870 &  0.591 &  0.318 & -0.660 & -0.214 \\
+& & (0.392) &  (0.753) &  (0.760) &  (0.473) &  (0.180) &  (0.285) &  (0.257) \\[3pt]
+\bottomrule
+\end{tabular}
+\end{table}
+\end{document}
