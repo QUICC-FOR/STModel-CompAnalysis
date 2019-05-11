@@ -1,0 +1,280 @@
+setwd("/Users/mtalluto/work/projects/stm/STModel-CompAnalysis/shp")
+setwd("/Users/mtalluto/work/projects/stm/STModel-CompAnalysis/")
+ls()
+scale_tp<- scale(transitionData$annual_mean_temp)
+transitionData$annual_mean_temp <- as.numeric(scale_tp)
+scale_pp <-  scale(transitionData$tot_annual_pp)
+transitionData$annual_pp <- as.numeric(scale_pp)
+transitionData$time <- transitionData$year2 - transitionData$year1
+transitionData$trobs <- paste0(transitionData$state1,transitionData$state2)
+transitionData <- subset(transitionData,trobs!="BT" & trobs!="TB")
+coefs <-c("annual_mean_temp" , "I(annual_mean_temp^2)" ,"I(annual_mean_temp^3)"  , "annual_pp" , "I(annual_pp^2)" ,"I(annual_pp^3)", "annual_mean_temp:annual_pp" , "time")
+contrib_form <- as.character()
+tested_coefs <- as.character()
+for(i in 1:length(coefs)){#
+  temp_coefs <- coefs[-i]#
+  tested_coefs  <- append(tested_coefs ,coefs[i])#
+  form <- paste0("state2 ~ ",paste(temp_coefs,collapse="+"))#
+  contrib_form <- append(contrib_form,form)#
+}
+tested_coefs
+contrib_form
+full_formula <- paste0("state2 ~ ",paste(coefs,collapse="+"))
+null_formula <- "state2 ~ 1"
+full_formula
+null_formula
+library("nnet")
+library("reshape2")
+multinom
+T_multi_full <- multinom(full_formula,data=transitionData,subset= state1=='T')
+M_multi_full <- multinom(full_formula,data=transitionData,subset= state1=='M')
+R_multi_full <- multinom(full_formula,data=transitionData,subset= state1=='R')
+B_multi_full <- multinom(full_formula,data=transitionData,subset= state1=='B')
+summary(B_multi_full)
+rm(*list=ls())
+transitionData <- subset(transitionData,subset=annual_mean_temp<=10)
+head(transitionData)
+modelVars <- poly(transitionData$annual_mean_temp, 3)
+modelVars <- cbind(poly(transitionData$annual_mean_temp, 3), poly(transitionData$tot_annual_pp, 3))
+head(modelVars)
+colMeans(modelVars)
+apply(sd, 2, modelVars)
+apply(modelVars, 2, sd)
+rm(list=ls())
+load("transitions_r5.rdata")
+transitionData <- as.data.table(subset(transitionData,subset=annual_mean_temp<=10))
+modelVars <- transitionData[,poly(transitionData$annual_mean_temp, 3)]
+modelVars <- transitionData[,poly(annual_mean_temp, 3)]
+modelVars <- transitionData[,.(poly(annual_mean_temp, 3))]
+transitionData
+modelVars <- transitionData[,.(plot, year1, year2, interval = year2-year1, state1, state2)]
+modelVars <- cbind(transitionData[,.(plot, year1, year2, interval = year2-year1, state1, state2)],#
+  poly(transitionData$annual_mean_temp, 3), poly(transitionData$tot_annual_pp, 3))
+paste0(c('temp', 'pp'), 1:3)
+?paste
+paste0(temp, 1:3)
+paste0("temp", 1:3)
+cbind(poly(transitionData$annual_mean_temp, 3), #
+  poly(transitionData$tot_annual_pp, 3), )
+colnames(modelVars)[7:12] <- c(paste0("temp", 1:3), paste0("pp", 1:3))
+modelVars[!(state1 == 'B' & state2=='T')]
+modelVars[(state1 == 'B' & state2=='T')]
+modelVars[(state1 == 'B' & state2=='T') | (state1 == 'T' & state2 == 'B')]
+modelVars[!((state1 == 'B' & state2=='T') | (state1 == 'T' & state2 == 'B'))]
+nrow(modelVars)
+modelVars
+modelVars[interval == 5]
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + offset(interval), #
+    data = modelVars, subset = state1 =='T')
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + interval),
+data = modelVars, subset = state1 =='T')
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + interval, #
+    data = modelVars, subset = state1 =='T')
+?poly
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + offset(offsets[modelVars$state1 == 'T'), data = modelVars, subset = state1 =='T')
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + offset(offsets[modelVars$state1 == 'T']), data = modelVars, subset = state1 =='T')
+dim(offsets)
+dim(modelVars)
+offsets <- cbind(modelVars$interval, modelVars$interval, modelVars$interval, modelVars$interval)
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + offset(offsets[modelVars$state1 == 'T',]), data = modelVars, subset = state1 =='T')
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + offset(offsets[modelVars$state1 == 'T',]), data = modelVars[state1 == 'T'])
+T_multi_full <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3 + offset(offsets[modelVars$state1 == 'T',]), data = modelVars[state1 == 'T'], link=cloglog)
+? multinom
+summary(T_multi_full)
+table(modelVars$interval)
+table(modelVars$interval) / sum(table(modelVars$interval))
+vars <- cbind(poly(transitionData$annual_mean_temp, 3), poly(transitionData$tot_annual_pp, 3))
+colnames(vars) <- c(paste0("temp", 1:3), paste0("pp", 1:3))
+vars <- apply(vars, 2, function(x) x / sd(x))
+str(vars)
+head(vars)
+colMeans(vars)
+apply(vars, 2, sd)
+modelVars <- cbind(transitionData[,.(plot, year1, year2, #
+    interval = year2-year1, state1, state2)], vars)
+modelVars <- modelVars[!((state1 == 'B' & state2=='T') | (state1 == 'T' & state2 == 'B'))]
+modelVars <- modelVars[interval <= 10]
+offsets <- cbind(modelVars$interval, modelVars$interval, modelVars$interval)
+T_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, #
+    data = modelVars, subset = state1 =='T' & interval == 5)
+modelVarsT[state2 == 'T', state2 := 'A']
+modelVarsT$state2 <- factor(modelVarsT$state2)
+str(modelVarsT)
+T_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, #
+    data = modelVarsT, subset = interval == 5)
+str(T_multi_5)
+modelVarsT <- modelVars[state1 == 'T']
+modelVarsT <- modelVars[state1 == 'T' & interval == 5]
+modelVarsT[,state2 := factor(state2, levels=c('T', 'M', 'R'))
+]
+T_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsT)
+summary(T_multi_5)
+library("knitr")
+?kable
+sumary(multinom(state2 ~ temp1 + temp2 + pp1 + pp2 + pp3, data = modelVarsT))
+summary(multinom(state2 ~ temp1 + temp2 + pp1 + pp2 + pp3, data = modelVarsT))
+summary(multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2, data = modelVarsT))
+predict(T_multi_5)
+table(predict(T_multi_5))
+?multinom
+B_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsB)
+M_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsM)
+R_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsR)
+modelVarsB <- modelVars[state1 == 'B' & interval == 5]#
+modelVarsB[,state2 := factor(state2, levels=c('B', 'M', 'R'))]#
+#
+modelVarsM <- modelVars[state1 == 'M' & interval == 5]#
+modelVarsM[,state2 := factor(state2, levels=c('M', 'B', 'T', 'R'))]#
+#
+modelVarsM <- modelVars[state1 == 'R' & interval == 5]#
+modelVarsM[,state2 := factor(state2, levels=c('R', 'B', 'T', 'M'))]#
+T_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsT)#
+B_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsB)#
+M_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsM)#
+R_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsR)
+modelVarsT <- modelVars[state1 == 'T' & interval == 5]#
+modelVarsT[,state2 := factor(state2, levels=c('T', 'M', 'R'))]#
+#
+modelVarsB <- modelVars[state1 == 'B' & interval == 5]#
+modelVarsB[,state2 := factor(state2, levels=c('B', 'M', 'R'))]#
+#
+modelVarsM <- modelVars[state1 == 'M' & interval == 5]#
+modelVarsM[,state2 := factor(state2, levels=c('M', 'B', 'T', 'R'))]#
+#
+modelVarsR <- modelVars[state1 == 'R' & interval == 5]#
+modelVarsR[,state2 := factor(state2, levels=c('R', 'B', 'T', 'M'))]#
+T_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsT)#
+B_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsB)#
+M_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsM)#
+R_multi_5 <- multinom(state2 ~ temp1 + temp2 + temp3 + pp1 + pp2 + pp3, data = modelVarsR)
+summary(B_multi_5)
+T_multi_2o <- multinom(state2 ~ temp1 + temp2 + pp1 + pp2, data = modelVarsT)#
+B_multi_2o <- multinom(state2 ~ temp1 + temp2 + pp1 + pp2, data = modelVarsB)#
+M_multi_2o <- multinom(state2 ~ temp1 + temp2 + pp1 + pp2, data = modelVarsM)#
+R_multi_2o <- multinom(state2 ~ temp1 + temp2 + pp1 + pp2, data = modelVarsR)
+AIC(T_multi_5)
+AIC(T_multi_2o)
+AIC(T_multi_5) - AIC(T_multi_2o)
+AIC(B_multi_5) - AIC(B_multi_2o)
+AIC(M_multi_5) - AIC(M_multi_2o)
+AIC(R_multi_5) - AIC(R_multi_2o)
+AIC(T_multi_5) - AIC(T_multi_2o) #
+AIC(B_multi_5) - AIC(B_multi_2o) #
+AIC(M_multi_5) - AIC(M_multi_2o) #
+AIC(R_multi_5) - AIC(R_multi_2o)
+summary.nnet
+class(T_multi_5)
+summary.multinom
+T_multi_5
+coefficients(T_multi_5)
+summary(T_multi_5)$coefficients
+names(summary(T_multi_5))
+names(T_multi_5)
+rbind(coefficients(T_multi_5), summary(T_multi_5)$standard.errors)
+rbind(coefficients(T_multi_5), summary(T_multi_5)$standard.errors)[c(1,3,2,4)]
+rbind(coefficients(T_multi_5), summary(T_multi_5)$standard.errors)[c(1,3,2,4),]
+rbind(coefficients(B_multi_5), summary(B_multi_5)$standard.errors)[c(1,3,2,4),]
+rbind(coefficients(M_multi_5), summary(M_multi_5)$standard.errors)
+rbind(coefficients(M_multi_5), summary(M_multi_5)$standard.errors)[c(1,4,2,5,3,6),]
+rbind(coefficients(R_multi_5), summary(T_multi_5)$standard.errors)[c(1,4,2,5,3,6),]
+rbind(coefficients(R_multi_5), summary(T_multi_5)$standard.errors)
+rbind(coefficients(R_multi_5), summary(R_multi_5)$standard.errors)[c(1,4,2,5,3,6),]
+outTab <- rbind(#
+    rbind(coefficients(T_multi_5), summary(T_multi_5)$standard.errors)[c(1,3,2,4),]#
+    rbind(coefficients(B_multi_5), summary(B_multi_5)$standard.errors)[c(1,3,2,4),]#
+    rbind(coefficients(M_multi_5), summary(M_multi_5)$standard.errors)[c(1,4,2,5,3,6),]#
+    rbind(coefficients(R_multi_5), summary(R_multi_5)$standard.errors)[c(1,4,2,5,3,6),])
+rownames(outTab) <- paste0(rownames(outTab), c(rep('T', 3), rep('B', 3), rep('M', 4), rep('R', 4)))
+rownames(outTab) <- paste0(c(rep('T', 3), rep('B', 3), rep('M', 4), rep('R', 4)), rownames(outTab))
+c(rep('T', 3), rep('B', 3), rep('M', 4), rep('R', 4)
+rownames(outTab)
+rownames(outTab) <- paste0(c(rep('T', 6), rep('B', 6), rep('M', 8), rep('R', 8)), rownames(outTab), c('.mean', '.se'))
+paste0(c(rep('T', 6), rep('B', 6), rep('M', 8), rep('R', 8)), rownames(outTab), c('.mean', '.se'))
+nrow(outTab)
+outTab <- rbind(#
+    rbind(coefficients(T_multi_5), summary(T_multi_5)$standard.errors)[c(1,3,2,4),],#
+    rbind(coefficients(B_multi_5), summary(B_multi_5)$standard.errors)[c(1,3,2,4),],#
+    rbind(coefficients(M_multi_5), summary(M_multi_5)$standard.errors)[c(1,4,2,5,3,6),],#
+    rbind(coefficients(R_multi_5), summary(R_multi_5)$standard.errors)[c(1,4,2,5,3,6),])
+outTab
+signif(outTab,digits=3)
+?signif
+outTab <- signif(rbind(#
+    rbind(coefficients(T_multi_5), summary(T_multi_5)$standard.errors)[c(1,3,2,4),],#
+    rbind(coefficients(B_multi_5), summary(B_multi_5)$standard.errors)[c(1,3,2,4),],#
+    rbind(coefficients(M_multi_5), summary(M_multi_5)$standard.errors)[c(1,4,2,5,3,6),],#
+    rbind(coefficients(R_multi_5), summary(R_multi_5)$standard.errors)[c(1,4,2,5,3,6),]), digits=3)
+rownames(outTab) <- paste0(c(rep('T', 4), rep('B', 4), rep('M', 6), rep('R', 6)), rownames(outTab), c('.mean', '.se'))
+kable(contrib,format="latex")
+kable(outTab,format="latex")
+readRDS("~/Downloads/modComparisons.rds")
+readRDS("~/Downloads/modComparisons.rds") -> models
+str(models)
+library("data.table")
+apply(models[,9:11], 1, which.max)
+models[,9:11]
+c('B', 'T', 'M')[apply(models[,9:11], 1, which.max)]
+models$stmState <- c('B', 'T', 'M')[apply(models[,9:11], 1, which.max)]
+rowSums(models[,9:11])
+1 - rowSums(models[,9:11])
+models$STM_B <- 1 - rowSums(models[,9:11])
+models <- data.table(readRDS("~/Downloads/modComparisons.rds"))
+models$STM_R <- 1 - rowSums(models[,9:11])
+models
+models$stmState <- c('B', 'T', 'M', 'R')[apply(models[,c(9:11, 20)], 1, which.max)]
+models$rf2State <- c('B', 'M', 'R', 'T')[apply(models[,12:15], 1, which.max)]
+models$rf7State <- c('B', 'M', 'R', 'T')[apply(models[,16:19], 1, which.max)]
+cbind(table(models$state, models$stmState), rep(0,4))
+table(models$state, models$stmState)
+diag(stmTab)/ sum(stmTab)
+stmTab <- cbind(table(models$state, models$stmState), R = rep(0,4))
+stmTab < stmTab[,rownames(stmTab)]
+stmTab <- stmTab[,rownames(stmTab)]
+stmTab <- rbind(table(models$stmState, models$state), R = rep(0,4))
+stmTab <- stmTab[colnames(stmTab), ]
+rowSums(stmTab) - diag(stmTab)
+sapply(1:4, function(x) colSums(stmTab[,-x])
+)
+nrow(models)
+sum(stmTab)
+sum(sapply(1:4, function(x) sum(stmTab[,-x])))
+colSums(stmTab)
+sapply(1:4, function(x) colSums(stmTab)[,-x])
+sapply(1:4, function(x) colSums(stmTab)[-x])
+sapply(1:4, function(x) sum(colSums(stmTab)[-x]))
+sapply(1:4, function(x) sum(rowSums(stmTab)[-x])/sum(colSums(stmTab)[-x]))
+sum(stmTab)[-x]
+sapply(1:4, function(x) sum(stmTab)[-x])
+sapply(1:4, function(x) sum(stmTab)[,-x])
+sapply(1:4, function(x) sum(stmTab[,-x]))
+sapply(1:4, function(x) sum(stmTab[-x, -x])/sum(stmTab[,-x]))
+diag(stmTab) / colSums(stmTab)
+sum(diag(stmTab) / colSums(stmTab)) - 3
+sum(diag(stmTab) / colSums(stmTab)) - 2
+sum(diag(stmTab))/ sum(stmTab)
+acc <- sum(diag(stmTab))/ sum(stmTab)
+sens <- diag(stmTab) / colSums(stmTab)
+spec <- sapply(1:4, function(x) sum(stmTab[-x, -x])/sum(stmTab[,-x]))
+tss <- apply(rbind(sens, spec), 2, function(x) sum(x) - 1)
+tss
+t(round(tss, 2))
+round(tss, 2)
+stmTab
+head(models)
+sum(models[state == 'B' & STM_B > STM_T & STM_B > STM_M])
+sum(models[state == 'B' & STM_B > STM_T & STM_B > STM_M,])
+sum(models$state == 'B' & models$STM_B > models$STM_T & models$STM_B > models$STM_M)
+m <- matrix(rnorm(10*46), ncol=10)
+m
+mp <- pca(m)
+mp <- princomp(m)
+mp
+?princomp
+mp <- prcomp(m)
+mp$x
+md <- dist(m)
+mpd <- dist(mp$x)
+cor(md, mpd)
+all.equal(md, mpd)
+sum(md == mpd)
+length(md)
